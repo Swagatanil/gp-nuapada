@@ -1,7 +1,7 @@
 import Gallery from "./Gallery";
 import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 import AdmissionForm from "./AdmissionForm";
-import DepartmentPage from "./DepartmentPage";
+import DepartmentPage from "./Departmentpage";
 import AdminUpload from "./AdminUpload";
 import { useState, useEffect, useRef } from "react";
 import { db } from "./firebase";
