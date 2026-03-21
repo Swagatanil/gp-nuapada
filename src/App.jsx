@@ -74,7 +74,6 @@ function MainSite() {
   const [statsVisible, setStatsVisible] = useState(false);
   const statsRef = useRef(null);
 
-  // ── Firebase data ──
   const [notices, setNotices] = useState([]);
   const [faculty, setFaculty] = useState([]);
 
@@ -86,17 +85,13 @@ function MainSite() {
     return () => observer.disconnect();
   }, []);
 
-  // ── Fetch notices + faculty from Firestore ──
   useEffect(() => {
-    // Notices
     getDocs(collection(db, "notices")).then(snap => {
       const data = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      // Latest pehle
       data.sort((a, b) => new Date(b.date) - new Date(a.date));
       setNotices(data);
     }).catch(err => console.error("Notices fetch error:", err));
 
-    // Faculty — HODs + regular faculty dono
     Promise.all([
       getDocs(collection(db, "hods")),
       getDocs(collection(db, "faculty")),
@@ -117,11 +112,15 @@ function MainSite() {
     <div style={{ fontFamily: "'Crimson Pro', Georgia, serif", background: "#0d1b2a", color: "#e8e0d0", minHeight: "100vh", overflowX: "hidden" }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Playfair+Display:wght@700;900&family=Bebas+Neue&display=swap');
+
         * { box-sizing: border-box; margin: 0; padding: 0; }
+        img { max-width: 100%; height: auto; }
+
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #0d1b2a; }
         ::-webkit-scrollbar-thumb { background: #f0b429; border-radius: 3px; }
         html { scroll-behavior: smooth; }
+
         .nav-link { 
           color: rgba(255,255,255,0.8); 
           text-decoration: none; 
@@ -134,6 +133,7 @@ function MainSite() {
           cursor: pointer;
         }
         .nav-link:hover, .nav-link.active { color: #f0b429; border-bottom-color: #f0b429; }
+
         .btn-primary {
           background: linear-gradient(135deg, #f0b429, #c47a2b);
           color: #0d1b2a;
@@ -149,6 +149,7 @@ function MainSite() {
           text-transform: uppercase;
         }
         .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(240,180,41,0.4); }
+
         .btn-outline {
           background: transparent;
           color: #f0b429;
@@ -164,9 +165,10 @@ function MainSite() {
           text-transform: uppercase;
         }
         .btn-outline:hover { background: rgba(240,180,41,0.1); transform: translateY(-2px); }
+
         .section-title {
           font-family: 'Playfair Display', serif;
-          font-size: clamp(2rem, 4vw, 3rem);
+          font-size: clamp(1.8rem, 4vw, 3rem);
           color: #f0b429;
           text-align: center;
           margin-bottom: 0.5rem;
@@ -179,6 +181,7 @@ function MainSite() {
           margin: 0 auto 3rem;
           line-height: 1.7;
         }
+
         .course-card {
           background: rgba(255,255,255,0.04);
           border: 1px solid rgba(255,255,255,0.08);
@@ -193,6 +196,7 @@ function MainSite() {
           box-shadow: 0 20px 40px rgba(0,0,0,0.3);
           border-color: rgba(240,180,41,0.3);
         }
+
         @keyframes fadeSlide {
           from { opacity: 0; transform: translateY(10px); }
           to { opacity: 1; transform: translateY(0); }
@@ -201,6 +205,7 @@ function MainSite() {
           0% { background-position: -200% center; }
           100% { background-position: 200% center; }
         }
+
         .divider-line {
           width: 80px;
           height: 3px;
@@ -208,6 +213,7 @@ function MainSite() {
           margin: 0.75rem auto 2rem;
           border-radius: 2px;
         }
+
         .faculty-card {
           background: rgba(255,255,255,0.04);
           border: 1px solid rgba(255,255,255,0.08);
@@ -221,6 +227,7 @@ function MainSite() {
           border-color: rgba(240,180,41,0.3);
           background: rgba(255,255,255,0.07);
         }
+
         .avatar {
           width: 80px;
           height: 80px;
@@ -236,6 +243,7 @@ function MainSite() {
           background: linear-gradient(135deg, #f0b429, #c47a2b);
           overflow: hidden;
         }
+
         input, textarea {
           width: 100%;
           background: rgba(255,255,255,0.05);
@@ -251,12 +259,143 @@ function MainSite() {
         input:focus, textarea:focus { border-color: #f0b429; }
         input::placeholder, textarea::placeholder { color: rgba(232,224,208,0.4); }
         label { display: block; margin-bottom: 0.4rem; font-size: 0.9rem; color: rgba(232,224,208,0.7); letter-spacing: 0.05em; text-transform: uppercase; }
+
+        /* ===================== */
+        /* RESPONSIVE FIXES      */
+        /* ===================== */
+
+        /* Hamburger — by default hidden on desktop */
+        .hamburger { display: none !important; }
+
+        /* Desktop nav links — visible */
+        .desktop-nav { display: flex; gap: 1.5rem; align-items: center; }
+
+        /* Mobile menu — hidden by default */
+        .mobile-menu { display: none; }
+        .mobile-menu.open { display: flex; }
+
+        /* About 2-col grid */
+        .about-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 4rem;
+          align-items: center;
+        }
+
+        /* Admissions 2-col grid */
+        .admissions-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 3rem;
+        }
+
+        /* Notices + Contact 2-col */
+        .notices-contact-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 3rem;
+        }
+
+        /* Top bar */
+        .top-bar-inner {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          flex-wrap: wrap;
+          gap: 0.5rem;
+        }
+        .top-bar-contacts {
+          display: flex;
+          gap: 1.5rem;
+          font-size: 0.82rem;
+          color: rgba(232,224,208,0.7);
+        }
+
+        /* ===================== */
+        /* TABLET — max 900px    */
+        /* ===================== */
+        @media (max-width: 900px) {
+          .about-grid {
+            grid-template-columns: 1fr;
+            gap: 2rem;
+          }
+          .admissions-grid {
+            grid-template-columns: 1fr;
+            gap: 2rem;
+          }
+          .notices-contact-grid {
+            grid-template-columns: 1fr;
+            gap: 2.5rem;
+          }
+        }
+
+        /* ===================== */
+        /* MOBILE — max 768px    */
+        /* ===================== */
+        @media (max-width: 768px) {
+          /* Hamburger dikhao, desktop nav chhupaao */
+          .hamburger { display: block !important; }
+          .desktop-nav { display: none !important; }
+
+          /* Top bar contacts — ek ke neeche ek */
+          .top-bar-contacts {
+            flex-direction: column;
+            gap: 0.3rem;
+            font-size: 0.78rem;
+          }
+
+          /* Logo block — smaller */
+          .logo-block h1 { font-size: 1.1rem !important; }
+
+          /* Navbar height */
+          .main-navbar { height: auto !important; min-height: 64px; }
+          .navbar-inner { padding: 0.8rem 1rem !important; }
+
+          /* Sections padding kam karo */
+          .about-section,
+          .courses-section,
+          .faculty-section,
+          .admissions-section,
+          .notices-section,
+          .gallery-section {
+            padding: 3rem 1rem !important;
+          }
+
+          /* Stats section */
+          .stats-section { padding: 3rem 1rem !important; }
+
+          /* Footer */
+          .footer-inner { padding: 2rem 1rem !important; }
+
+          /* Section title smaller on mobile */
+          .section-title { font-size: clamp(1.5rem, 6vw, 2rem); }
+
+          /* Badge grid in about — 1 col */
+          .about-badges {
+            grid-template-columns: 1fr !important;
+          }
+
+          /* Course cards min width */
+          .courses-grid {
+            grid-template-columns: 1fr !important;
+          }
+        }
+
+        /* ===================== */
+        /* SMALL MOBILE — 480px  */
+        /* ===================== */
+        @media (max-width: 480px) {
+          .top-bar-contacts span:last-child { display: none; }
+          .btn-primary, .btn-outline { width: 100%; text-align: center; }
+          .course-card { padding: 1.2rem; }
+          .stat-card { padding: 1.2rem 0.8rem; }
+        }
       `}</style>
 
       {/* Top Bar */}
       <div style={{ background: "linear-gradient(135deg, #1a3a5c, #0d2035)", borderBottom: "1px solid rgba(240,180,41,0.2)", padding: "0.5rem 0" }}>
-        <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 2rem", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "0.5rem" }}>
-          <div style={{ display: "flex", gap: "1.5rem", fontSize: "0.82rem", color: "rgba(232,224,208,0.7)" }}>
+        <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 1rem" }} className="top-bar-inner">
+          <div className="top-bar-contacts">
             <span>📞 06678-234567</span>
             <span>✉️ gpnuapada@odisha.gov.in</span>
           </div>
@@ -274,15 +413,16 @@ function MainSite() {
         backgroundSize: "cover",
         backgroundPosition: "center",
         position: "relative",
-        height: "10vh",
+        minHeight: "10vh",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
+        padding: "1rem",
       }}>
         <div style={{ position: "absolute", inset: 0, background: "rgba(13,27,42,0.75)", zIndex: 1 }} />
-        <div style={{
-          position: "relative", zIndex: 2, maxWidth: "800px",
-          padding: "0.3rem 0.8rem", background: "rgba(26,74,107,0.55)",
+        <div className="logo-block" style={{
+          position: "relative", zIndex: 2, maxWidth: "800px", width: "100%",
+          padding: "0.5rem 1rem", background: "rgba(26,74,107,0.55)",
           borderRadius: "8px", border: "1px solid rgba(240,180,41,0.5)",
           backdropFilter: "blur(6px)", boxShadow: "0 3px 12px rgba(0,0,0,0.5)",
           textAlign: "center", transition: "all 0.3s ease",
@@ -290,32 +430,34 @@ function MainSite() {
           onMouseEnter={e => e.currentTarget.style.transform = "scale(1.02)"}
           onMouseLeave={e => e.currentTarget.style.transform = "scale(1)"}
         >
-          <div style={{ fontSize: "2.2rem", marginBottom: "0.15rem" }}>🏛️</div>
-          <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(1.3rem, 3vw, 1.6rem)", color: "#f0b429", marginBottom: "0.1rem", textShadow: "0 1px 6px rgba(0,0,0,0.7)" }}>
+          <div style={{ fontSize: "2rem", marginBottom: "0.15rem" }}>🏛️</div>
+          <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(1.1rem, 3vw, 1.6rem)", color: "#f0b429", marginBottom: "0.1rem", textShadow: "0 1px 6px rgba(0,0,0,0.7)" }}>
             Govt. Polytechnic Nuapada
           </h1>
-          <p style={{ fontSize: "1rem", color: "rgba(232,224,208,0.9)", marginBottom: "0.4rem", lineHeight: "1.1" }}>
+          <p style={{ fontSize: "clamp(0.85rem, 2vw, 1rem)", color: "rgba(232,224,208,0.9)", lineHeight: "1.2" }}>
             Dept. of Tech. Education, Odisha
           </p>
         </div>
       </div>
 
       {/* Navbar */}
-      <nav style={{
+      <nav className="main-navbar" style={{
         position: "sticky", top: 0, zIndex: 100,
         background: "rgba(13,27,42,0.95)", backdropFilter: "blur(20px)",
         borderBottom: "1px solid rgba(240,180,41,0.2)",
-        boxShadow: "0 10px 40px rgba(0,0,0,0.5)", height: "80px",
+        boxShadow: "0 10px 40px rgba(0,0,0,0.5)",
       }}>
-        <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 2rem", display: "flex", alignItems: "center", justifyContent: "space-between", height: "100%" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "1rem", cursor: "pointer" }} onClick={() => scrollTo("home")}>
-            <div style={{ width: 50, height: 50, borderRadius: "50%", background: "linear-gradient(135deg, #1a3a5c, #0d2035)", border: "2px solid #f0b429", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.4rem" }}>🏛️</div>
+        <div className="navbar-inner" style={{ maxWidth: 1200, margin: "0 auto", padding: "0 1.5rem", display: "flex", alignItems: "center", justifyContent: "space-between", minHeight: "64px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.8rem", cursor: "pointer" }} onClick={() => scrollTo("home")}>
+            <div style={{ width: 44, height: 44, borderRadius: "50%", background: "linear-gradient(135deg, #1a3a5c, #0d2035)", border: "2px solid #f0b429", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.2rem", flexShrink: 0 }}>🏛️</div>
             <div>
-              <div style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.1rem", fontWeight: 700, color: "#f0b429" }}>Govt. Polytechnic</div>
-              <div style={{ fontSize: "0.75rem", color: "rgba(232,224,208,0.6)", letterSpacing: "0.1em", textTransform: "uppercase" }}>Nuapada, Odisha</div>
+              <div style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(0.85rem, 2vw, 1.1rem)", fontWeight: 700, color: "#f0b429" }}>Govt. Polytechnic</div>
+              <div style={{ fontSize: "0.7rem", color: "rgba(232,224,208,0.6)", letterSpacing: "0.1em", textTransform: "uppercase" }}>Nuapada, Odisha</div>
             </div>
           </div>
-          <div style={{ display: "flex", gap: "1.5rem", alignItems: "center" }}>
+
+          {/* Desktop Nav */}
+          <div className="desktop-nav">
             {NAV_LINKS.map(link => (
               <span key={link} className={`nav-link ${activeNav === link ? "active" : ""}`}
                 onClick={() => { setActiveNav(link); scrollTo(link.toLowerCase().replace(" ", "")); }}>
@@ -323,39 +465,49 @@ function MainSite() {
               </span>
             ))}
           </div>
-          <button onClick={() => setMenuOpen(!menuOpen)}
-            style={{ background: "none", border: "none", color: "#f0b429", fontSize: "1.5rem", cursor: "pointer", display: "none" }}
-            className="hamburger">☰</button>
+
+          {/* Hamburger */}
+          <button
+            className="hamburger"
+            onClick={() => setMenuOpen(!menuOpen)}
+            style={{ background: "none", border: "none", color: "#f0b429", fontSize: "1.6rem", cursor: "pointer", padding: "0.3rem" }}
+          >
+            {menuOpen ? "✕" : "☰"}
+          </button>
         </div>
-        {menuOpen && (
-          <div style={{ background: "rgba(13,27,42,0.98)", padding: "1rem 2rem", display: "flex", flexDirection: "column", gap: "1rem", borderTop: "1px solid rgba(240,180,41,0.1)" }}>
-            {NAV_LINKS.map(link => (
-              <span key={link} className="nav-link" onClick={() => { setActiveNav(link); scrollTo(link.toLowerCase()); }}>{link}</span>
-            ))}
-          </div>
-        )}
+
+        {/* Mobile Menu */}
+        <div className={`mobile-menu ${menuOpen ? "open" : ""}`}
+          style={{ background: "rgba(13,27,42,0.98)", padding: "1rem 1.5rem", flexDirection: "column", gap: "1rem", borderTop: "1px solid rgba(240,180,41,0.1)" }}>
+          {NAV_LINKS.map(link => (
+            <span key={link} className="nav-link" style={{ fontSize: "1.1rem", padding: "0.5rem 0" }}
+              onClick={() => { setActiveNav(link); scrollTo(link.toLowerCase()); }}>
+              {link}
+            </span>
+          ))}
+        </div>
       </nav>
 
       {/* Gallery */}
-      <section id="gallery" style={{ padding: "0rem 2rem", background: "#0d1b2a" }}>
+      <section id="gallery" className="gallery-section" style={{ padding: "0rem 1rem", background: "#0d1b2a" }}>
         <div style={{ maxWidth: 1500, margin: "0 auto" }}>
           <Gallery />
         </div>
       </section>
 
       {/* Stats */}
-      <section ref={statsRef} style={{ background: "linear-gradient(135deg, #1a3a5c, #0d2035)", padding: "4rem 2rem" }}>
-        <div style={{ maxWidth: 1200, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "1.5rem" }}>
+      <section ref={statsRef} className="stats-section" style={{ background: "linear-gradient(135deg, #1a3a5c, #0d2035)", padding: "4rem 1.5rem" }}>
+        <div style={{ maxWidth: 1200, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: "1.5rem" }}>
           {STATS.map(stat => <StatCard key={stat.label} stat={stat} animate={statsVisible} />)}
         </div>
       </section>
 
       {/* About */}
-      <section id="about" style={{ padding: "6rem 2rem", background: "#0d1b2a" }}>
+      <section id="about" className="about-section" style={{ padding: "6rem 1.5rem", background: "#0d1b2a" }}>
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
           <h2 className="section-title">About the Institution</h2>
           <div className="divider-line" />
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4rem", alignItems: "center" }}>
+          <div className="about-grid">
             <div>
               <p style={{ color: "rgba(232,224,208,0.8)", lineHeight: 1.9, fontSize: "1.05rem", marginBottom: "1.5rem" }}>
                 Government Polytechnic Nuapada is a premier technical institution established under the Department of Technical Education & Training, Government of Odisha. Located in the tribal-dominated district of Nuapada, the college has been instrumental in bringing quality technical education to the aspirants of this region.
@@ -363,7 +515,7 @@ function MainSite() {
               <p style={{ color: "rgba(232,224,208,0.8)", lineHeight: 1.9, fontSize: "1.05rem", marginBottom: "2rem" }}>
                 Approved by AICTE and affiliated to SCTE&VT Odisha, we offer 3-year diploma programmes in engineering and technology. Our state-of-the-art laboratories, experienced faculty, and industry collaborations ensure students are job-ready upon graduation.
               </p>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+              <div className="about-badges" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
                 {["AICTE Approved", "SCTE&VT Affiliated", "ISO Certified", "Govt. of Odisha"].map(badge => (
                   <div key={badge} style={{ background: "rgba(240,180,41,0.08)", border: "1px solid rgba(240,180,41,0.2)", borderRadius: "6px", padding: "0.7rem 1rem", fontSize: "0.9rem", color: "#f0b429", display: "flex", alignItems: "center", gap: "0.5rem" }}>
                     <span>✓</span> {badge}
@@ -371,7 +523,7 @@ function MainSite() {
                 ))}
               </div>
             </div>
-            <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(240,180,41,0.15)", borderRadius: "16px", padding: "2.5rem" }}>
+            <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(240,180,41,0.15)", borderRadius: "16px", padding: "2rem" }}>
               <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.5rem", color: "#f0b429", marginBottom: "1.5rem" }}>Principal's Message</h3>
               <div style={{ width: 60, height: 60, borderRadius: "50%", background: "linear-gradient(135deg, #f0b429, #c47a2b)", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'Playfair Display', serif", fontSize: "1.3rem", color: "#0d1b2a", fontWeight: 700, marginBottom: "1.2rem" }}>SP</div>
               <p style={{ color: "rgba(232,224,208,0.75)", lineHeight: 1.9, fontSize: "1rem", fontStyle: "italic" }}>
@@ -384,17 +536,17 @@ function MainSite() {
       </section>
 
       {/* Courses */}
-      <section id="courses" style={{ padding: "6rem 2rem", background: "linear-gradient(180deg, #0d1b2a, #0d2035)" }}>
+      <section id="courses" className="courses-section" style={{ padding: "6rem 1.5rem", background: "linear-gradient(180deg, #0d1b2a, #0d2035)" }}>
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
           <h2 className="section-title">Diploma Programmes</h2>
           <div className="divider-line" />
           <p className="section-subtitle">3-Year full-time diploma programmes approved by AICTE and affiliated to SCTE&VT Odisha</p>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "1.5rem" }}>
+          <div className="courses-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "1.5rem" }}>
             {COURSES.map(course => (
               <div key={course.name} className="course-card" onClick={() => navigate(`/department/${encodeURIComponent(course.name)}`)}>
                 <div style={{ fontSize: "2.5rem", marginBottom: "1rem" }}>{course.icon}</div>
-                <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.3rem", color: "#e8e0d0", marginBottom: "0.5rem" }}>{course.name}</h3>
-                <div style={{ display: "flex", gap: "1rem", marginTop: "1rem" }}>
+                <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.2rem", color: "#e8e0d0", marginBottom: "0.5rem" }}>{course.name}</h3>
+                <div style={{ display: "flex", gap: "1rem", marginTop: "1rem", flexWrap: "wrap" }}>
                   <span style={{ background: "rgba(240,180,41,0.1)", color: "#f0b429", padding: "0.25rem 0.75rem", borderRadius: "4px", fontSize: "0.8rem" }}>⏱ {course.duration}</span>
                   <span style={{ background: "rgba(255,255,255,0.06)", color: "rgba(232,224,208,0.7)", padding: "0.25rem 0.75rem", borderRadius: "4px", fontSize: "0.8rem" }}>👥 {course.seats} Seats</span>
                 </div>
@@ -405,13 +557,13 @@ function MainSite() {
         </div>
       </section>
 
-      {/* Faculty — Firebase se */}
-      <section id="faculty" style={{ padding: "6rem 2rem", background: "#0d1b2a" }}>
+      {/* Faculty */}
+      <section id="faculty" className="faculty-section" style={{ padding: "6rem 1.5rem", background: "#0d1b2a" }}>
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
           <h2 className="section-title">Our Faculty</h2>
           <div className="divider-line" />
           <p className="section-subtitle">Experienced educators dedicated to shaping the next generation of engineers</p>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: "1.5rem" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "1.5rem" }}>
             {faculty.length === 0 ? (
               <p style={{ textAlign: "center", color: "rgba(232,224,208,0.4)", gridColumn: "1/-1" }}>
                 Faculty data load ho raha hai...
@@ -436,11 +588,11 @@ function MainSite() {
       </section>
 
       {/* Admissions */}
-      <section id="admissions" style={{ padding: "6rem 2rem", background: "linear-gradient(135deg, #1a3a5c, #0d2035)" }}>
+      <section id="admissions" className="admissions-section" style={{ padding: "6rem 1.5rem", background: "linear-gradient(135deg, #1a3a5c, #0d2035)" }}>
         <div style={{ maxWidth: 900, margin: "0 auto" }}>
           <h2 className="section-title">Admissions 2026–27</h2>
           <div className="divider-line" />
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "3rem" }}>
+          <div className="admissions-grid">
             <div>
               <h3 style={{ fontFamily: "'Playfair Display', serif", color: "#f0b429", fontSize: "1.4rem", marginBottom: "1.5rem" }}>Eligibility & Process</h3>
               {[
@@ -470,9 +622,9 @@ function MainSite() {
                   { event: "Document Verification", date: "May 10–20, 2026" },
                   { event: "Classes Commence", date: "Jul 1, 2026" },
                 ].map((item, i) => (
-                  <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "1rem 1.2rem", borderBottom: i < 4 ? "1px solid rgba(255,255,255,0.06)" : "none" }}>
-                    <span style={{ color: "rgba(232,224,208,0.8)", fontSize: "0.9rem" }}>{item.event}</span>
-                    <span style={{ color: "#f0b429", fontSize: "0.85rem", fontWeight: 600, flexShrink: 0, marginLeft: "1rem" }}>{item.date}</span>
+                  <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0.9rem 1rem", borderBottom: i < 4 ? "1px solid rgba(255,255,255,0.06)" : "none", flexWrap: "wrap", gap: "0.3rem" }}>
+                    <span style={{ color: "rgba(232,224,208,0.8)", fontSize: "0.88rem" }}>{item.event}</span>
+                    <span style={{ color: "#f0b429", fontSize: "0.85rem", fontWeight: 600 }}>{item.date}</span>
                   </div>
                 ))}
               </div>
@@ -487,48 +639,50 @@ function MainSite() {
         </div>
       </section>
 
-      {/* Notices — Firebase se */}
-      <section style={{ padding: "5rem 2rem", background: "#0d1b2a" }}>
-        <div style={{ maxWidth: 1200, margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "3rem" }}>
-          <div>
-            <h2 className="section-title" style={{ textAlign: "left" }}>Notices & Updates</h2>
-            <div style={{ width: 80, height: 3, background: "linear-gradient(90deg, #f0b429, #c47a2b)", borderRadius: 2, marginBottom: "1.5rem" }} />
-            {notices.length === 0 ? (
-              <p style={{ color: "rgba(232,224,208,0.4)", fontSize: "0.95rem" }}>
-                Koi notice nahi hai abhi. Admin panel se add karein.
-              </p>
-            ) : notices.map((notice) => (
-              <div key={notice.id} style={{ display: "flex", gap: "1rem", padding: "1rem 0", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-                <div style={{ color: "#f0b429", fontSize: "0.78rem", fontWeight: 600, flexShrink: 0, marginTop: 2, letterSpacing: "0.05em" }}>
-                  {notice.date}
+      {/* Notices + Contact */}
+      <section className="notices-section" style={{ padding: "5rem 1.5rem", background: "#0d1b2a" }}>
+        <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+          <div className="notices-contact-grid">
+            <div>
+              <h2 className="section-title" style={{ textAlign: "left" }}>Notices & Updates</h2>
+              <div style={{ width: 80, height: 3, background: "linear-gradient(90deg, #f0b429, #c47a2b)", borderRadius: 2, marginBottom: "1.5rem" }} />
+              {notices.length === 0 ? (
+                <p style={{ color: "rgba(232,224,208,0.4)", fontSize: "0.95rem" }}>
+                  Koi notice nahi hai abhi. Admin panel se add karein.
+                </p>
+              ) : notices.map((notice) => (
+                <div key={notice.id} style={{ display: "flex", gap: "1rem", padding: "1rem 0", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+                  <div style={{ color: "#f0b429", fontSize: "0.78rem", fontWeight: 600, flexShrink: 0, marginTop: 2, letterSpacing: "0.05em" }}>
+                    {notice.date}
+                  </div>
+                  <div style={{ color: "rgba(232,224,208,0.8)", fontSize: "0.95rem", lineHeight: 1.6 }}>
+                    📄 {notice.text}
+                  </div>
                 </div>
-                <div style={{ color: "rgba(232,224,208,0.8)", fontSize: "0.95rem", lineHeight: 1.6 }}>
-                  📄 {notice.text}
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
 
-          {/* Contact */}
-          <div id="contact">
-            <h2 className="section-title" style={{ textAlign: "left" }}>Contact Us</h2>
-            <div style={{ width: 80, height: 3, background: "linear-gradient(90deg, #f0b429, #c47a2b)", borderRadius: 2, marginBottom: "1.5rem" }} />
-            <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-              <div><label>Your Name</label><input type="text" placeholder="Full Name" /></div>
-              <div><label>Email Address</label><input type="email" placeholder="email@example.com" /></div>
-              <div><label>Message</label><textarea rows={4} placeholder="Write your message here..." style={{ resize: "vertical" }} /></div>
-              <button className="btn-primary">Send Message →</button>
+            {/* Contact */}
+            <div id="contact">
+              <h2 className="section-title" style={{ textAlign: "left" }}>Contact Us</h2>
+              <div style={{ width: 80, height: 3, background: "linear-gradient(90deg, #f0b429, #c47a2b)", borderRadius: 2, marginBottom: "1.5rem" }} />
+              <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+                <div><label>Your Name</label><input type="text" placeholder="Full Name" /></div>
+                <div><label>Email Address</label><input type="email" placeholder="email@example.com" /></div>
+                <div><label>Message</label><textarea rows={4} placeholder="Write your message here..." style={{ resize: "vertical" }} /></div>
+                <button className="btn-primary">Send Message →</button>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer style={{ background: "#060f18", borderTop: "1px solid rgba(240,180,41,0.1)", padding: "3rem 2rem" }}>
-        <div style={{ maxWidth: 1200, margin: "0 auto" }}>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "2.5rem", marginBottom: "2.5rem" }}>
+      <footer style={{ background: "#060f18", borderTop: "1px solid rgba(240,180,41,0.1)", padding: "3rem 0" }}>
+        <div className="footer-inner" style={{ maxWidth: 1200, margin: "0 auto", padding: "0 1.5rem" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "2rem", marginBottom: "2rem" }}>
             <div>
-              <h4 style={{ fontFamily: "'Playfair Display', serif", color: "#f0b429", fontSize: "1.2rem", marginBottom: "1rem" }}>Govt. Polytechnic Nuapada</h4>
+              <h4 style={{ fontFamily: "'Playfair Display', serif", color: "#f0b429", fontSize: "1.1rem", marginBottom: "1rem" }}>Govt. Polytechnic Nuapada</h4>
               <p style={{ color: "rgba(232,224,208,0.5)", fontSize: "0.9rem", lineHeight: 1.8 }}>Department of Technical Education & Training, Government of Odisha</p>
             </div>
             <div>
